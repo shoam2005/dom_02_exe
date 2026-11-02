@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Task Board</title>
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  
 </head>
 <body>
   <main class="board">
@@ -18,7 +18,7 @@
         <option value="medium" selected>Medium</option>
         <option value="high">High</option>
       </select>
-      <button type="submit">Add</button>
+      <button id="btadd" type="submit">Add</button>
     </form>
     <p id="error" class="error" hidden></p>
 
@@ -36,5 +36,6 @@
       <button type="button" id="clear-done">Clear completed</button>
     </footer>
   </main>
+  <script src="script.js"></script>
 </body>
 </html>
