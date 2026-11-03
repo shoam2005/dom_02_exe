@@ -26,39 +26,81 @@ const selectLevel = document.getElementById('priority-select')
 const inputtext = document.getElementById('task-input')
 const errortext = document.getElementById('error')
 const leftTask = document.getElementById('left')
-let level = selectLevel.value
+const empty = document.getElementById('empty')
+
+let level = selectLevel.value;
+selectLevel.addEventListener('change', (event) => {
+    level = event.target.value;
+})
+
+function finishTask(){
+    const items=document.querySelectorAll('li')
+    if(items.length===0){
+        empty.hidden=false
+    }
+    else
+        empty.hidden=true
+}
+
+const btClaer = document.getElementById('clear-done')
+btClaer.addEventListener('click', (event) => {
+    event.preventDefault()
+
+    const items = document.querySelectorAll('li')
+    items.forEach(task => {
+        const isDone = task.classList.contains('done')
+        if (isDone)
+            task.remove()
+    })
+    finishTask()
+})
 
 const btAll = document.querySelector('[data-filter="all"]')
 const btActive = document.querySelector('[data-filter="active"]')
 const btDone = document.querySelector('[data-filter="done"]')
-btAll.addEventListener('click', (event) => {
+
+function applyFilter() {
+    const items = document.querySelectorAll('li')
+    items.forEach(task => {
+        const isDone = task.classList.contains('done')
+
+        if (btDone.classList.contains('active')) {
+            if (isDone) task.removeAttribute('hidden')
+            else task.setAttribute('hidden', true)
+        } else if (btActive.classList.contains('active')) {
+            if (!isDone) task.removeAttribute('hidden')
+            else task.setAttribute('hidden', true)
+        } else {
+            task.removeAttribute('hidden')
+        }
+    })
+}
+
+btAll.addEventListener('click', () => {
     btAll.classList.add('active')
     btActive.classList.remove('active')
     btDone.classList.remove('active')
-
-
+    applyFilter()
 })
-btActive.addEventListener('click', (event) => {
+
+btActive.addEventListener('click', () => {
     btActive.classList.add('active')
     btAll.classList.remove('active')
     btDone.classList.remove('active')
+    applyFilter()
 })
-btDone.addEventListener('click', (event) => {
+
+btDone.addEventListener('click', () => {
     btActive.classList.remove('active')
     btAll.classList.remove('active')
     btDone.classList.add('active')
-    const items = document.querySelectorAll('li')
-    items.forEach(task => task.classList.contains('done') ? task.classList.remove('hidden') : task.classList.add('hidden'))
-
+    applyFilter()
 })
 
 
 submit.addEventListener('click', (event) => {
     event.preventDefault()
     errortext.hidden = true
-    selectLevel.addEventListener('change', (event) => {
-        level = event.target.value;
-    })
 
     if (inputtext.value !== '' && inputtext.value.trim() !== '') {
         const item = document.createElement('li')
@@ -66,16 +108,21 @@ submit.addEventListener('click', (event) => {
         text.classList.add('text')
         text.textContent = inputtext.value
         item.appendChild(text)
+
         const btDelete = document.createElement('button')
         btDelete.classList.add('delete')
         btDelete.textContent = 'x'
         item.appendChild(btDelete)
-        if (level === 'low')
+
+        const currentLevel = selectLevel.value || level;
+
+        if (currentLevel === 'low')
             item.classList.add('priority-low')
-        else if (level === 'medium')
+        else if (currentLevel === 'medium')
             item.classList.add('priority-medium')
-        else if (level === 'high')
+        else if (currentLevel === 'high')
             item.classList.add('priority-high')
+
         listtask.appendChild(item)
 
         item.addEventListener('click', (event) => {
@@ -86,37 +133,41 @@ submit.addEventListener('click', (event) => {
                 leftTask.textContent = Number(leftTask.textContent) + 1
             } else {
                 clicked.classList.add('done');
-                leftTask.textContent = Number(leftTask.textContent) - 1
+                leftTask.textContent = Number(leftTask.textContent - 1)
             }
-
+            applyFilter()
         })
-
 
         btDelete.addEventListener('click', (event) => {
-            item.classList.remove('done')
-            item.remove()
-            leftTask.textContent = Number(leftTask.textContent) - 1
+            event.stopPropagation()
+            if (item.classList.contains('done')) {
+                item.remove()
+            } else {
+                leftTask.textContent = Number(leftTask.textContent) - 1
+                item.remove()
+            }
+            applyFilter()
+            finishTask()
         })
-
 
         inputtext.value = ''
         inputtext.focus()
-        const empty = document.getElementById('empty')
-        empty.textContent = ''
+        
+        
         leftTask.textContent = Number(leftTask.textContent) + 1
 
-    }
-    else if (inputtext.value === '') {
+        applyFilter()
+        finishTask()
+
+    } else if (inputtext.value === '') {
         errortext.textContent = 'Please type a task'
         errortext.hidden = false
         inputtext.focus()
-    }
-    else {
+    } else {
         errortext.textContent = 'Cannot add an empty task'
         errortext.hidden = false
         inputtext.focus()
     }
-
-
+    
 })
 
